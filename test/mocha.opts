@@ -1,5 +1,5 @@
 --file test/setup.ts
---require ts-node/register #replace with ts-node/register/transpile-only if you have custom types
+--require ts-node/register
 --require source-map-support/register
 
 --check-leaks

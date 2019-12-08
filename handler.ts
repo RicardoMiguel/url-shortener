@@ -1,5 +1,5 @@
 import { UrlService } from './src/service/urlService'
-import { UrlRepository } from './src/infrastructure'
+import {UrlNotFoundError, UrlRepository} from './src/infrastructure'
 import {APIGatewayProxyEvent, Context} from "aws-lambda";
 import {InvalidUrlError} from "./src/domain";
 
@@ -20,8 +20,10 @@ const getUrl = async (event: APIGatewayProxyEvent, context: Context) => {
         const url = await urlService.getUrlBasedOnHash(hash);
         return { statusCode: 200, body: JSON.stringify(url) };
     } catch (e) {
-        console.log(e);
-        return { statusCode: 404, body: e.message };
+        if (e instanceof UrlNotFoundError) {
+            return { statusCode: 404, body: e.message };
+        }
+        return { statusCode: 500, body: e.message };
     }
 };
 
@@ -44,9 +46,10 @@ const createUrl = async (event: APIGatewayProxyEvent, context: Context) => {
         return { statusCode: 400, body: 'Please specify a hash through \'url\' body property' };
     }
 
+    const host = event.multiValueHeaders.Host[0];
     const urlService = new UrlService(new UrlRepository());
     try {
-        const url = await urlService.createOrUpdateUrl(incomingUrl.url, 'localhost');
+        const url = await urlService.createOrUpdateUrl(incomingUrl.url, host);
         return { statusCode: 200, body: JSON.stringify(url) };
     } catch (e) {
         if (e instanceof InvalidUrlError) {

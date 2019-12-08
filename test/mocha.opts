@@ -1,3 +1,8 @@
+--file test/setup.ts
 --require ts-node/register #replace with ts-node/register/transpile-only if you have custom types
 --require source-map-support/register
-src/*.test.ts
+
+--check-leaks
+--full-trace
+
+src/**/*.test.ts

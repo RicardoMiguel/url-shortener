@@ -1,0 +1,37 @@
+service: lambda-url-shortener
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-central-1
+
+functions:
+  getUrl:
+    handler: handler.getUrl
+    events:
+      - http:
+          path: url
+          method: get
+  createUrl:
+    handler: handler.createUrl
+    events:
+      - http:
+          path: url
+          method: post
+  getStats:
+    handler: handler.getStats
+    events:
+      - http:
+          path: url/stats
+          method: get
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/**/*
+    - '**/*.test.ts'
+  include:
+    src/**

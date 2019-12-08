@@ -6,7 +6,7 @@
   "scripts": {
     "start": "serverless offline start",
     "test": "nyc mocha --opts test/mocha.opts",
-    "posttest": "nyc report --reporter=json",
+    "posttest": "nyc report --reporter=lcov",
     "report-coverage": "codecov"
   },
   "repository": {

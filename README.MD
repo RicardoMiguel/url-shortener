@@ -1,0 +1,2 @@
+[![codecov](https://codecov.io/gh/RicardoMiguel/url-shortener/branch/master/graph/badge.svg)](https://codecov.io/gh/RicardoMiguel/url-shortener)
+[![Build Status](https://travis-ci.com/RicardoMiguel/url-shortener.svg?branch=master)](https://travis-ci.com/RicardoMiguel/url-shortener)

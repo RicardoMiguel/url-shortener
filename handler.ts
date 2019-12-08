@@ -1,5 +1,5 @@
 import { UrlService } from './src/service/urlService'
-import {UrlNotFoundError, UrlRepository} from './src/infrastructure'
+import {UrlNotFoundError, UrlRepository, connect} from './src/infrastructure'
 import {APIGatewayProxyEvent, Context} from "aws-lambda";
 import {InvalidUrlError} from "./src/domain";
 
@@ -7,8 +7,13 @@ interface IncomingUrl {
     url: string;
 }
 
+async function databaseConnection () {
+    await connect();
+}
+
 const getUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
+    await databaseConnection();
 
     const hash: string | null = event.queryStringParameters && event.queryStringParameters['hash'];
     if (hash === null || hash === '') {
@@ -29,7 +34,8 @@ const getUrl = async (event: APIGatewayProxyEvent, context: Context) => {
 
 const getStats = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
-
+    await databaseConnection();
+    
     const urlService = new UrlService(new UrlRepository());
     const urls = await urlService.getAllStats();
     return { statusCode: 200, body: JSON.stringify(urls) };
@@ -37,6 +43,7 @@ const getStats = async (event: APIGatewayProxyEvent, context: Context) => {
 
 const createUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
+    await databaseConnection();
 
     if (!event.body) {
         return { statusCode: 400, body: 'Please specify a body' };

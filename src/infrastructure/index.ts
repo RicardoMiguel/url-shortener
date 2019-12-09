@@ -1,11 +1,12 @@
 import { Repository } from './repository';
-import { MemoryRepository } from './memoryRepository';
 import { UrlNotFoundError } from './urlNotFoundError';
 
-const UrlRepository = MemoryRepository;
+import { UrlRepository } from "./mongo/urlRepository";
+import { connect } from './mongo/dbConnection';
 
 export {
     Repository,
     UrlRepository,
-    UrlNotFoundError
+    UrlNotFoundError,
+    connect,
 }

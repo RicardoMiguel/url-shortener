@@ -1,12 +1,12 @@
 import { Repository } from './repository';
 import { UrlNotFoundError } from './urlNotFoundError';
-import {MongoRepository, connect} from "./model";
 
-const UrlRepository = MongoRepository;
+import { UrlRepository } from "./mongo/urlRepository";
+import { connect } from './mongo/dbConnection';
 
 export {
     Repository,
     UrlRepository,
     UrlNotFoundError,
-    connect
+    connect,
 }

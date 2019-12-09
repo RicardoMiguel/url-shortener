@@ -2,25 +2,26 @@ import { UrlService } from './src/service/urlService'
 import {UrlNotFoundError, UrlRepository, connect} from './src/infrastructure'
 import {APIGatewayProxyEvent, Context} from "aws-lambda";
 import {InvalidUrlError} from "./src/domain";
+import {Db} from "mongodb";
 
 interface IncomingUrl {
     url: string;
 }
 
-async function databaseConnection () {
-    await connect();
+async function databaseConnection (): Promise<Db> {
+    return connect();
 }
 
 const getUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
-    await databaseConnection();
+    const db = await databaseConnection();
 
     const hash: string | null = event.queryStringParameters && event.queryStringParameters['hash'];
     if (hash === null || hash === '') {
         return { statusCode: 400, body: 'Please specify a hash through query parameters' };
     }
 
-    const urlService = new UrlService(new UrlRepository());
+    const urlService = new UrlService(new UrlRepository(db));
     try {
         const url = await urlService.getUrlBasedOnHash(hash);
         return { statusCode: 200, body: JSON.stringify(url) };
@@ -34,16 +35,16 @@ const getUrl = async (event: APIGatewayProxyEvent, context: Context) => {
 
 const getStats = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
-    await databaseConnection();
+    const db = await databaseConnection();
     
-    const urlService = new UrlService(new UrlRepository());
+    const urlService = new UrlService(new UrlRepository(db));
     const urls = await urlService.getAllStats();
     return { statusCode: 200, body: JSON.stringify(urls) };
 };
 
 const createUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
-    await databaseConnection();
+    const db = await databaseConnection();
 
     if (!event.body) {
         return { statusCode: 400, body: 'Please specify a body' };
@@ -54,7 +55,7 @@ const createUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     }
 
     const host = event.multiValueHeaders.Host[0];
-    const urlService = new UrlService(new UrlRepository());
+    const urlService = new UrlService(new UrlRepository(db));
     try {
         const url = await urlService.createOrUpdateUrl(incomingUrl.url, host);
         return { statusCode: 200, body: JSON.stringify(url) };

@@ -5,7 +5,6 @@ import { Repository, UrlNotFoundError } from '../infrastructure'
 import {UrlDto} from "../infrastructure/repository";
 import {InvalidUrlError, Url} from "../domain";
 
-
 describe('UrlService', function () {
     beforeEach(function () {
         this.repository = td.object<Repository>();
@@ -21,7 +20,7 @@ describe('UrlService', function () {
 
             const promise = this.service.getUrlBasedOnHash(hash);
 
-            expect(promise).to.eventually.rejectedWith(UrlNotFoundError);
+            return expect(promise).to.eventually.rejectedWith(UrlNotFoundError);
         });
 
         it('should return the url with no modification', async function () {

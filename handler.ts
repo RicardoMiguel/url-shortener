@@ -67,4 +67,19 @@ const createUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     }
 };
 
-export { getUrl, getStats, createUrl };
+const cleanUrls = async (event: unknown, context: Context) => {
+    context.callbackWaitsForEmptyEventLoop = false;
+    const db = await databaseConnection();
+
+    const urlService = new UrlService(new UrlRepository(db));
+
+    try {
+        const numberUrlsCleaned = await urlService.clean();
+        console.info(`Removed ${numberUrlsCleaned} urls`)
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
+};
+
+export { getUrl, getStats, createUrl, cleanUrls };

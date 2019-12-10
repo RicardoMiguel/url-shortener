@@ -85,4 +85,22 @@ describe('UrlRepository', function () {
             expect(result).to.eql(object);
         });
     });
+
+    describe('deleteAll', function () {
+        it('should throw if was not successful deleting', function () {
+            td.when(this.collection.deleteMany({  })).thenResolve({ result: { ok: 0, n: 0 } });
+
+            const promise = this.repository.deleteAll();
+
+            return expect(promise).to.eventually.rejectedWith(Error, 'Something unexpected happened while deleting.');
+        });
+
+        it('should return number of deleted documents', async function () {
+            td.when(this.collection.deleteMany({  })).thenResolve({ result: { ok: 1, n: 5 } });
+
+            const result = await this.repository.deleteAll();
+
+            expect(result).to.equal(5);
+        });
+    })
 });

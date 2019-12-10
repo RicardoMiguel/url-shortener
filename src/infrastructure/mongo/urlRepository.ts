@@ -42,4 +42,12 @@ export class UrlRepository implements Repository {
         console.debug('Url object: ', result.value);
         return result.value;
     }
+
+    async deleteAll(): Promise<number> {
+        const result = await this.collection.deleteMany({});
+        if (!result.result.ok || result.result.n === undefined) {
+            throw new Error('Something unexpected happened while deleting.');
+        }
+        return result.result.n;
+    }
 }

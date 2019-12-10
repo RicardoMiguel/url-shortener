@@ -27,4 +27,8 @@ export class UrlService {
 
         return urlDto.hashes[urlDto.hashes.length - 1];
     }
+
+    clean() {
+        return this.repository.deleteAll();
+    }
 }

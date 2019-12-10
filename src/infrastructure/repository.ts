@@ -10,4 +10,5 @@ export interface Repository {
     getByHash(hash: string): Promise<UrlDto>;
     getAll(): Promise<UrlDto[]>;
     updateOrCreateUrl(url: Url): Promise<UrlDto>;
+    deleteAll(): Promise<number>;
 }

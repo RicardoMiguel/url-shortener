@@ -69,4 +69,24 @@ describe('UrlService', function () {
             expect(hashCreated).to.equal(hash);
         });
     });
+
+    describe('clean', function () {
+        it('should return the error returned by repository', function () {
+            td.when(this.repository.deleteAll())
+                .thenReject(new Error());
+
+            const promise = this.service.clean();
+
+            expect(promise).to.eventually.rejectedWith(Error);
+        });
+
+        it('should return the number of documents returned by repository', async function () {
+            td.when(this.repository.deleteAll())
+                .thenResolve(5);
+
+            const result = await this.service.clean();
+
+            expect(result).to.equal(5);
+        });
+    });
 });

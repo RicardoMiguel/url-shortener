@@ -54,7 +54,7 @@ describe('UrlService', function () {
 
             const promise = this.service.createOrUpdateUrl(domain, '127.0.0.1');
 
-            expect(promise).to.rejectedWith(InvalidUrlError, 'random and invalid url seems to be invalid. Please provide a proper url');
+            return expect(promise).to.rejectedWith(InvalidUrlError, 'random and invalid url seems to be invalid. Please provide a proper url');
         });
 
         it('should delegate creation to repository', async function () {
@@ -77,7 +77,7 @@ describe('UrlService', function () {
 
             const promise = this.service.clean();
 
-            expect(promise).to.eventually.rejectedWith(Error);
+            return expect(promise).to.eventually.rejectedWith(Error);
         });
 
         it('should return the number of documents returned by repository', async function () {

@@ -1,85 +1,40 @@
-import { UrlService } from './src/service/urlService'
-import {UrlNotFoundError, UrlRepository, connect} from './src/infrastructure'
-import {APIGatewayProxyEvent, Context} from "aws-lambda";
-import {InvalidUrlError} from "./src/domain";
-import {Db} from "mongodb";
+import { APIGatewayProxyEvent, Context } from "aws-lambda";
+import {connect, UrlRepository} from './src/infrastructure'
+import * as functions from './src/functions';
+import {UrlService} from "./src/service/urlService";
 
-interface IncomingUrl {
-    url: string;
-}
-
-async function databaseConnection (): Promise<Db> {
-    return connect();
-}
+const databaseConnection = connect;
 
 const getUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
     const db = await databaseConnection();
-
-    const hash: string | null = event.queryStringParameters && event.queryStringParameters['hash'];
-    if (hash === null || hash === '') {
-        return { statusCode: 400, body: 'Please specify a hash through query parameters' };
-    }
-
     const urlService = new UrlService(new UrlRepository(db));
-    try {
-        const url = await urlService.getUrlBasedOnHash(hash);
-        return { statusCode: 200, body: JSON.stringify(url) };
-    } catch (e) {
-        if (e instanceof UrlNotFoundError) {
-            return { statusCode: 404, body: e.message };
-        }
-        return { statusCode: 500, body: e.message };
-    }
+
+    return await functions.getUrl(event, urlService);
 };
 
 const getStats = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
     const db = await databaseConnection();
-    
     const urlService = new UrlService(new UrlRepository(db));
-    const urls = await urlService.getAllStats();
-    return { statusCode: 200, body: JSON.stringify(urls) };
+    
+    return await functions.getStats(urlService);
 };
 
 const createUrl = async (event: APIGatewayProxyEvent, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
     const db = await databaseConnection();
-
-    if (!event.body) {
-        return { statusCode: 400, body: 'Please specify a body' };
-    }
-    const incomingUrl: IncomingUrl = JSON.parse(event.body);
-    if (!incomingUrl.url) {
-        return { statusCode: 400, body: 'Please specify a hash through \'url\' body property' };
-    }
-
-    const host = event.multiValueHeaders.Host[0];
     const urlService = new UrlService(new UrlRepository(db));
-    try {
-        const url = await urlService.createOrUpdateUrl(incomingUrl.url, host);
-        return { statusCode: 200, body: JSON.stringify(url) };
-    } catch (e) {
-        if (e instanceof InvalidUrlError) {
-            return { statusCode: 400, body: e.message };
-        }
-        return { statusCode: 500, body: e.message };
-    }
+
+    return await functions.createUrl(event, urlService);
 };
 
 const cleanUrls = async (event: unknown, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
     const db = await databaseConnection();
-
     const urlService = new UrlService(new UrlRepository(db));
 
-    try {
-        const numberUrlsCleaned = await urlService.clean();
-        console.info(`Removed ${numberUrlsCleaned} urls`)
-    } catch (e) {
-        console.error(e);
-        throw e;
-    }
+    await functions.cleanUrls(urlService);
 };
 
 export { getUrl, getStats, createUrl, cleanUrls };

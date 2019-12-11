@@ -4,7 +4,7 @@ node_js:
 
 deploy:
   provider: script
-  script: scripts/deploy.sh
+  script: npm run deploy-prod
   on:
     branch: master
 

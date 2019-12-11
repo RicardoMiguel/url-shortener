@@ -24,11 +24,13 @@ export class UrlService {
         url.createHash(ip, basicHash);
 
         const urlDto = await this.repository.updateOrCreateUrl(url);
-
+        console.info(`Created/Updated state for ${url.domain}: `, urlDto);
         return urlDto.hashes[urlDto.hashes.length - 1];
     }
 
-    clean() {
-        return this.repository.deleteAll();
+    async clean() {
+        const numbersUrlDeleted = await this.repository.deleteAll();
+        console.info(`Cleaned ${numbersUrlDeleted} urls`);
+        return numbersUrlDeleted;
     }
 }

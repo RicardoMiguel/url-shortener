@@ -26,7 +26,7 @@ export class UrlRepository implements Repository {
         if (url === null) {
             throw new UrlNotFoundError('Not found url with ' + hash);
         }
-        console.debug('Url object: ', url);
+
         return url;
     }
 
@@ -39,7 +39,7 @@ export class UrlRepository implements Repository {
         if (!result.value || !result.ok) {
             throw Error(result.lastErrorObject.errmsg);
         }
-        console.debug('Url object: ', result.value);
+
         return result.value;
     }
 

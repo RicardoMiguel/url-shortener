@@ -11,8 +11,9 @@ export async function connect () : Promise<Db> {
     }
 
     if (!cachedDb) {
-        console.trace('Connecting to database');
+        console.info('Connecting to database');
         const connection = await MongoClient.connect(uri);
+        console.info('Successfully connected to db');
         cachedDb = connection.db();
     }
 
